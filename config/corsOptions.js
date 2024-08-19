@@ -1,11 +1,11 @@
 const allowedOrigins = require("./allowedOrigins");
 
 const corsOptions = {
-	origin: (origin, cb) => {
+	origin: (origin, callback) => {
 		if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-			cb(null, true);
+			callback(null, true);
 		} else {
-			cb(new Error("Not allowed by CORS"));
+			callback(new Error("Not allowed by CORS"));
 		}
 	},
 	credentials: true,
