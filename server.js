@@ -10,6 +10,7 @@ const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
 const connectDB = require("./config/dbConnect");
 const mongoose = require("mongoose");
+const userRouter = require("./routes/userRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -25,6 +26,7 @@ app.use("/", express.static(path.join(__dirname, "/public")));
 // ************* APP  *************
 
 app.use("/", require("./routes/root"));
+app.use("/users", userRouter);
 
 app.all("*", (req, res) => {
 	res.status(404);
@@ -34,6 +36,7 @@ app.all("*", (req, res) => {
 		res.json({ message: "404 not found" });
 	} else {
 		res.type("text").send("404 not found");
+		1;
 	}
 });
 
