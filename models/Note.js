@@ -8,13 +8,15 @@ const noteSchema = new mongoose.Schema(
 			required: true,
 			ref: "User",
 		},
-		title: { type: String, required: true },
+		title: {
+			type: String,
+			required: true,
+		},
 		text: {
 			type: String,
 			default: "Employee",
 			required: true,
 		},
-
 		completed: {
 			type: Boolean,
 			default: false,
