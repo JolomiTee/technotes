@@ -30,7 +30,7 @@ const login = asyncHandler(async (req, res) => {
 		},
 		process.env.ACCESS_TOKEN_SECRET,
 		{
-			expiresIn: "10s",
+			expiresIn: "10m",
 		}
 	);
 
@@ -38,9 +38,9 @@ const login = asyncHandler(async (req, res) => {
 		{
 			username: foundUser.username,
 		},
-		process.env.ACCESS_TOKEN_SECRET,
+		process.env.REFRESH_TOKEN_SECRET,
 		{
-			expiresIn: "1d",
+			expiresIn: "10m",
 		}
 	);
 
@@ -60,7 +60,8 @@ const login = asyncHandler(async (req, res) => {
 const refresh = (req, res) => {
 	const cookies = req.cookies;
 
-	if (!cookies.jwt) return res.status(401).json({ message: "Unauthorized" });
+	if (!cookies?.jwt)
+		return res.status(401).json({ message: "Unauthorized, no cookies" });
 
 	const refreshToken = cookies.jwt;
 
@@ -68,11 +69,15 @@ const refresh = (req, res) => {
 		refreshToken,
 		process.env.REFRESH_TOKEN_SECRET,
 		asyncHandler(async (err, decoded) => {
-			if (err) return res.status(403).json({ message: "Forbidden" });
+			if (err)
+				return res
+					.status(403)
+					.json({ message: "Forbidden, there is a problem", error: err });
 
 			const foundUser = await User.findOne({ username: decoded.username });
 
-			if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
+			if (!foundUser)
+				return res.status(401).json({ message: "Unauthorized, no such user" });
 
 			const accessToken = jwt.sign(
 				{
@@ -82,7 +87,7 @@ const refresh = (req, res) => {
 					},
 				},
 				process.env.ACCESS_TOKEN_SECRET,
-				{ expiresIn: "10s" }
+				{ expiresIn: "10m" }
 			);
 
 			res.json({ accessToken });
@@ -95,13 +100,9 @@ const refresh = (req, res) => {
 // @access: Public
 const logout = (req, res) => {
 	const cookies = req.cookies;
-	if (!cookies?.jwt) return res.sendStatus(204);
-	res.clearCookie("jwt", {
-		httpOnly: true,
-		secure: true,
-		sameSite: "None",
-	});
-	res.message({ message: "Cookie cleared" });
+	if (!cookies?.jwt) return res.sendStatus(204); //No content
+	res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+	res.json({ message: "Cookie cleared" });
 };
 
 module.exports = { login, refresh, logout };
