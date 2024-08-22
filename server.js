@@ -12,6 +12,7 @@ const connectDB = require("./config/dbConnect");
 const mongoose = require("mongoose");
 const userRouter = require("./routes/userRoutes");
 const noteRouter = require("./routes/noteRoute");
+const authRouter = require("./routes/authRoute");
 
 // Connect to MongoDB
 connectDB();
@@ -29,6 +30,7 @@ app.use("/", express.static(path.join(__dirname, "/public")));
 app.use("/", require("./routes/root"));
 app.use("/users", userRouter);
 app.use("/notes", noteRouter);
+app.use("/auth", authRouter);
 
 app.all("*", (req, res) => {
 	res.status(404);
