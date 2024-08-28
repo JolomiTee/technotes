@@ -1,17 +1,15 @@
 const User = require("../models/Users");
 const Note = require("../models/Note");
 
-const asyncHandler = require("express-async-handler");
-
-const getAllNotes = asyncHandler(async (req, res) => {
+const getAllNotes = async (req, res) => {
 	const notes = await Note.find().lean();
 	if (!notes?.length) {
 		return res.status(400).json({ message: "No notes found" });
 	}
 	res.json(notes);
-});
+};
 
-const createNewnote = asyncHandler(async (req, res) => {
+const createNewnote = async (req, res) => {
 	const { user, title, text } = req.body;
 	// check for correct data
 	if (!user || !title || !text) {
@@ -37,9 +35,9 @@ const createNewnote = asyncHandler(async (req, res) => {
 	} else {
 		res.status(400).json({ message: "Invalid data recieved" });
 	}
-});
+};
 
-const updateNote = asyncHandler(async (req, res) => {
+const updateNote = async (req, res) => {
 	const { id, user, title, text, completed } = req.body;
 
 	// Confirm data
@@ -73,9 +71,9 @@ const updateNote = asyncHandler(async (req, res) => {
 	const updatedNote = await note.save();
 
 	res.json({ message: `${updatedNote.title} updated` });
-});
+};
 
-const deleteNote = asyncHandler(async (req, res) => {
+const deleteNote = async (req, res) => {
 	const { id } = req.body;
 
 	// Confirm data
@@ -95,6 +93,6 @@ const deleteNote = asyncHandler(async (req, res) => {
 	const reply = `Note '${result.title}' with ID ${result._id} deleted`;
 
 	res.json(reply);
-});
+};
 
 module.exports = { getAllNotes, createNewnote, updateNote, deleteNote };

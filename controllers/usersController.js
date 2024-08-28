@@ -1,27 +1,20 @@
 const User = require("../models/Users");
 const Note = require("../models/Note");
 
-const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 
-const getAllUsers = asyncHandler(async (req, res) => {
+const getAllUsers = async (req, res) => {
 	const users = await User.find().select("-password").lean();
 	if (!users?.length) {
 		return res.status(400).json({ message: "No users found" });
 	}
 	res.json(users);
-});
+};
 
-const createNewUser = asyncHandler(async (req, res) => {
+const createNewUser = async (req, res) => {
 	const { username, password, roles } = req.body;
 	// check for correct data
-	if (
-		!username ||
-		!password ||
-		!Array.isArray(roles) ||
-		!roles.length ||
-		roles.some((role) => typeof role !== "string")
-	) {
+	if (!username || !password) {
 		return res.status(400).json({ message: "All fields are required" });
 	}
 	// check for duplicates
@@ -37,7 +30,10 @@ const createNewUser = asyncHandler(async (req, res) => {
 	// Hash Password
 	const hashedPassword = await bcrypt.hash(password, 10);
 
-	const userObject = { username, password: hashedPassword, roles };
+	const userObject =
+		!Array.isArray(roles) || !roles.length
+			? { username, password: hashedPassword }
+			: { username, password: hashedPassword, roles };
 
 	// Create/ store new user
 	const user = await User.create(userObject);
@@ -47,9 +43,9 @@ const createNewUser = asyncHandler(async (req, res) => {
 	} else {
 		res.status(400).json({ message: "Invalid user data recieved" });
 	}
-});
+};
 
-const updateUser = asyncHandler(async (req, res) => {
+const updateUser = async (req, res) => {
 	const { id, username, roles, active, password } = req.body;
 
 	// Confirm data
@@ -95,9 +91,9 @@ const updateUser = asyncHandler(async (req, res) => {
 	const updatedUser = await user.save();
 
 	res.json({ message: `${updatedUser.username} updated` });
-});
+};
 
-const deleteUser = asyncHandler(async (req, res) => {
+const deleteUser = async (req, res) => {
 	const { id } = req.body;
 
 	// Confirm data
@@ -123,6 +119,6 @@ const deleteUser = asyncHandler(async (req, res) => {
 	const reply = `Username ${result.username} with ID ${result._id} deleted`;
 
 	res.json(reply);
-});
+};
 
 module.exports = { getAllUsers, createNewUser, updateUser, deleteUser };
